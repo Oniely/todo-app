@@ -10,7 +10,7 @@ export interface Todo {
     status: string;
 }
 
-const App: React.FC<Todo> = () => {
+const App: React.FC = () => {
     const [filter, setFilter] = useState("All");
     const [todo, setTodo] = useState<Todo[]>([]);
 
