@@ -24,6 +24,7 @@ const App: React.FC = () => {
                 className="mt-4"
                 style={{
                     width: "60%",
+                    minWidth: 'fit-content',
                 }}
             >
                 <h1
@@ -40,7 +41,7 @@ const App: React.FC = () => {
                 <div className="d-flex justify-content-between align-items-center py-2">
                     <AddTodo onAddTodo={handleAddTodo} />
                     <select
-                        className="btn text-start"
+                        className="btn text-start py-2"
                         name="dropbtn"
                         id="dropbtn"
                         value={filter}

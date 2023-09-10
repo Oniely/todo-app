@@ -25,7 +25,7 @@ export const AddTodo: React.FC<TaskProp> = ({ onAddTodo }) => {
         localStorage.setItem("tasks", jsonString);
     };
 
-    const handleClick = () => {
+    const addTodoItem = () => {
         if (title.trim() === "") return;
 
         const newTask: Todo = {
@@ -33,6 +33,7 @@ export const AddTodo: React.FC<TaskProp> = ({ onAddTodo }) => {
             title,
             status,
         };
+
         onAddTodo(newTask);
         saveData(newTask);
 
@@ -42,7 +43,7 @@ export const AddTodo: React.FC<TaskProp> = ({ onAddTodo }) => {
 
     function handleEnterKey(e: KeyboardEvent<HTMLFormElement>) {
         if (e.key === "Enter") {
-            handleClick();
+            addTodoItem();
         } else if (e.key === "Esc") {
             handleClose();
         }
@@ -104,7 +105,7 @@ export const AddTodo: React.FC<TaskProp> = ({ onAddTodo }) => {
                             Close
                         </Button>
 
-                        <Button onClick={handleClick}>Add Task</Button>
+                        <Button onClick={addTodoItem}>Add Task</Button>
                     </Modal.Footer>
                 </Modal>
             </form>
