@@ -7,30 +7,22 @@ interface ListProp {
 }
 
 export const List: React.FC<ListProp> = ({ task, filter }) => {
-    const [filteredTask, setFilteredTask] = useState<Todo[]>([]);
+    const [listTask, setListTask] = useState<Todo[]>([]);
     const [editingItemId, setEditingItemId] = useState<string | null>(null);
+    const [filtered, setFiltered] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         const storedData = localStorage.getItem("tasks");
         const parsedData: Todo[] = storedData ? JSON.parse(storedData) : [];
-        
-        const updatedFilteredTask = parsedData.filter((item) => {
-            if (filter === "All") {
-                return true;
-            } else {
-                return item.status === filter;
-            }
-        });
-        setFilteredTask(updatedFilteredTask);
+        setListTask(parsedData);
+        setFiltered(filter);
     }, [task, filter]);
 
     const handleItemStatus = (id: string) => {
-        
-        const updatedTasks = filteredTask.map((task) => {
-
+        const updatedTasks = listTask.map((task) => {
             if (task.id === id) {
-            const updatedStatus =
-                task.status === "Completed" ? "Incomplete" : "Completed";
+                const updatedStatus =
+                    task.status === "Completed" ? "Incomplete" : "Completed";
 
                 return {
                     ...task,
@@ -41,7 +33,7 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
         });
 
         // Update the state
-        setFilteredTask(updatedTasks);
+        setListTask(updatedTasks);
 
         // Update the status in localStorage
         const storedData = localStorage.getItem("tasks");
@@ -49,8 +41,10 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
             const parsedData: Todo[] = JSON.parse(storedData);
             const updatedData = parsedData.map((task) => {
                 if (task.id === id) {
-            const updatedStatus =
-                task.status === "Completed" ? "Incomplete" : "Completed";
+                    const updatedStatus =
+                        task.status === "Completed"
+                            ? "Incomplete"
+                            : "Completed";
 
                     return {
                         ...task,
@@ -64,9 +58,7 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
     };
 
     const removeTask = (id: string) => {
-        setFilteredTask((prevTasks) =>
-            prevTasks.filter((task) => task.id !== id)
-        );
+        setListTask((prevTasks) => prevTasks.filter((task) => task.id !== id));
 
         const storedData = localStorage.getItem("tasks");
 
@@ -87,11 +79,11 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
     };
 
     const handleEditTask = (id: string) => {
-        setEditingItemId(id)
-    }
+        setEditingItemId(id);
+    };
 
     const handleEditTitleChange = (id: string, newTitle: string) => {
-        setFilteredTask((prevTasks) =>
+        setListTask((prevTasks) =>
             prevTasks.map((task) =>
                 task.id === id
                     ? {
@@ -113,8 +105,8 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
                     ? {
                           ...task,
                           title:
-                              filteredTask.find((item) => item.id === id)
-                                  ?.title || task.title,
+                              listTask.find((item) => item.id === id)?.title ||
+                              task.title,
                       }
                     : task
             );
@@ -124,13 +116,21 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
         setEditingItemId(null);
     };
 
-    const inputFocus = useCallback((e: HTMLInputElement)=> {
+    const inputFocus = useCallback((e: HTMLInputElement) => {
         if (e) {
             e.focus();
             e.select();
         }
-    }, [])
+    }, []);
 
+    const filteredTask = listTask.filter((item) => {
+        if (filtered === "All") {
+            return true;
+        } else {
+            return item.status === filtered;
+        }
+    });
+    
     return (
         <>
             <ul className="list-group d-flex justify-content-center gap-3">
@@ -145,12 +145,14 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
                 {filteredTask.map((item) => {
                     return (
                         <li
-                            className="list-group-item d-flex justify-content-between"
+                            className="list-group-item d-flex justify-content-between bg-light"
                             style={{
-                                border: "0",
+                                border: "1px solid rgba(0,0,0,0.2)",
                                 borderRadius: "3px",
                                 paddingTop: "12px",
                                 paddingBottom: "12px",
+                                overflowWrap: "break-word",
+                                wordBreak: "break-all",
                             }}
                             key={item.id}
                         >
@@ -162,7 +164,7 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
                                         style={{
                                             fontSize: "18px",
                                             borderBottom: "1px solid black",
-                                            padding: "3px 10px",
+                                            padding: "0 10px",
                                             width: "12rem",
                                         }}
                                         value={item.title}
@@ -185,12 +187,13 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
                                     <input
                                         type="checkbox"
                                         id={item.id}
+                                        className="checkbox flex-shrink-0"
                                         checked={
                                             item.status === "Completed" && true
                                         }
-                                        onChange={() =>
-                                            handleItemStatus(item.id)
-                                        }
+                                        onChange={() => {
+                                            handleItemStatus(item.id);
+                                        }}
                                     />
                                     <label
                                         htmlFor={item.id}
@@ -200,17 +203,20 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
                                                 : "label"
                                         }
                                         style={{
-                                            marginRight: "10px",
+                                            marginRight: "20px",
                                         }}
                                     >
                                         {item.title}
                                     </label>
                                 </div>
                             )}
-                            <div className="d-flex justify-content-center align-items-center gap-2">
+                            <div
+                                className="d-flex justify-content-center align-items-center"
+                                style={{ gap: "0.6rem" }}
+                            >
                                 <button
                                     className="btn btn-sm"
-                                    id="liBtn"
+                                    id="delete"
                                     onClick={() => removeTask(item.id)}
                                 >
                                     <svg
@@ -223,16 +229,28 @@ export const List: React.FC<ListProp> = ({ task, filter }) => {
                                 </button>
                                 {editingItemId === item.id ? ( // Render "Save" button in editing mode
                                     <button
-                                        className="btn btn-sm"
-                                        id="liBtn"
+                                        className="btn btn-sm btn-success"
+                                        id="save"
                                         onClick={() => saveEditedTitle(item.id)}
                                     >
-                                        Save
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            height="1em"
+                                            viewBox="0 0 448 512"
+                                        >
+                                            Font Awesome Free 6.4.2 by
+                                            @fontawesome -
+                                            https://fontawesome.com License -
+                                            https://fontawesome.com/license
+                                            (Commercial License) Copyright 2023
+                                            Fonticons, Inc.
+                                            <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
+                                        </svg>
                                     </button>
                                 ) : (
                                     <button
-                                        className="btn btn-sm"
-                                        id="liBtn"
+                                        className="btn btn-sm btn-primary"
+                                        id="edit"
                                         name="updateBtn"
                                         onClick={() => handleEditTask(item.id)}
                                     >

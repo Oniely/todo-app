@@ -1,19 +1,28 @@
-import { useState, KeyboardEvent } from "react";
+import { useState, KeyboardEvent, useEffect } from "react";
 import { Button } from "react-bootstrap";
 import { Modal } from "react-bootstrap";
 import { Todo } from "../App";
 
 interface TaskProp {
     onAddTodo: (newTodo: Todo) => void;
+    handleModal: () => void;
+    onShow: boolean;
 }
 
-export const AddTodo: React.FC<TaskProp> = ({ onAddTodo }) => {
+export const AddTodo: React.FC<TaskProp> = ({ onAddTodo, onShow, handleModal }) => {
     const [show, setShow] = useState(false);
     const [title, setTitle] = useState("");
     const [status, setStatus] = useState("Incomplete");
 
+    useEffect(() => {
+        setShow(onShow);
+    }, [onShow])
+    
     const handleShow = () => setShow(true);
-    const handleClose = () => setShow(false);
+    const handleClose = () => {
+        setShow(false);
+        handleModal();
+    };
 
     const saveData = (newTask: Todo) => {
         const existingDataString = localStorage.getItem('tasks');
@@ -55,7 +64,10 @@ export const AddTodo: React.FC<TaskProp> = ({ onAddTodo }) => {
                 variant="primary"
                 onClick={handleShow}
                 className="px-3 py-2"
-                style={{ backgroundColor: "#646ff0" }}
+                id="addTask"
+                style={{
+                    backgroundColor: "#646ff0",
+                }}
             >
                 Add Task
             </Button>
